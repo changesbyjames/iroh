@@ -547,6 +547,23 @@ impl QuicTransportConfigBuilder {
         self
     }
 
+    /// Disables iroh's holepunching for connections using this config.
+    ///
+    /// NAT traversal is only negotiated when both endpoints offer it, so a connection using this
+    /// config never exchanges NAT traversal addresses: this endpoint does not advertise its own
+    /// direct addresses to the remote, nor does it probe addresses the remote sends it. The
+    /// connection stays on the path it was established on, such as a relay, unless the remote
+    /// already knows a direct address.
+    ///
+    /// Use it with [`Incoming::accept_with`] to keep an endpoint's IP addresses from remotes it
+    /// does not trust, while still accepting their connections through a relay.
+    ///
+    /// [`Incoming::accept_with`]: crate::endpoint::Incoming::accept_with
+    pub fn disable_nat_traversal(mut self) -> Self {
+        self.0.max_remote_nat_traversal_addresses(0);
+        self
+    }
+
     /// Configures qlog capturing by setting a [`QlogFactory`].
     ///
     /// This assigns a [`QlogFactory`] that produces qlog capture configurations for

@@ -1123,6 +1123,11 @@ impl State {
 fn update_qnt_candidates(conn: &noq::Connection, direct_addrs: &BTreeSet<SocketAddr>) {
     let noq_candidates = match conn.get_local_nat_traversal_addresses() {
         Ok(addrs) => BTreeSet::from_iter(addrs),
+        Err(n0_nat_traversal::Error::ExtensionNotNegotiated) => {
+            // NAT traversal was disabled for this connection: its addresses are never advertised.
+            trace!("nat traversal not negotiated, not advertising local addrs");
+            return;
+        }
         Err(err) => {
             warn!("failed to get local nat candidates: {err:#}");
             return;
